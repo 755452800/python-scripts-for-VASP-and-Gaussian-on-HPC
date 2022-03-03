@@ -34,7 +34,7 @@ def job_sub(sq):
     try:
         job_status = squeue_info[squeue_info.index(jobid) + 4]
     except ValueError:
-        print("Job finished instantly, " + colour('ERROR') + " may have occured, check slurm output.")
+        print("Job finished instantly, " + colour("ERROR") + " may have occured, check slurm output.")
         sys.exit()
     else:
         print("Job {} is now submitted to {}, slurm job id is: {}".

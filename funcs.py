@@ -5,13 +5,9 @@ Author: steven
 Date: Tue Dec 14 11:19:20 CST 2021
 Last modified on : Mon Feb 21 19:14:09 CST 2022
 
-1. pay attention to the usage of 'or' in python
-2. python read/write functions should be paid more attention, especially a+ w+ r+
-3. bugs on 46-49 need investigation
-4. pay more attention to regex  https://regex101.com/
-5. more about global variables and loops and breaks
-6. pay attention to the use of sys.argv[0:] not sys.argv[1:]
-7. to show the work directory of past jobs in slurm, try `sacct -j 188677 --format "jobid,jobname%20,workdir%70"`,
+1. regex  https://regex101.com/
+2. use of sys.argv[0:] not sys.argv[1:]
+3. to show the work directory of past jobs in slurm, try `sacct -j 188677 --format "jobid,jobname%20,workdir%70"`,
     see more in https://stackoverflow.com/questions/24586699/how-to-find-from-where-a-job-is-submitted-in-slurm
 """
 import os
