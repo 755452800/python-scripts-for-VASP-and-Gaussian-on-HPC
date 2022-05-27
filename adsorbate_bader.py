@@ -5,14 +5,19 @@ from colour import colour
 
 
 def des_folders():
+    all_folders = os.listdir()
     exclude_folder = input("Specif exclude folders & files (using space to seperate):")
     exclude_folders = exclude_folder.split()
     run_folder = input("Specif folders to run (default all, using space to seperate):")
     run_folders = run_folder.split()
+    flag = set(exclude_folders) <= set(all_folders) and set(run_folders) <= set(all_folders)
+    if not flag:
+        print(colour("Wrong input! Input folder may be not in current working folder!"))
+        sys.exit()
     if run_folder:
         folders = run_folders
     else:
-        folders = os.listdir()
+        folders = all_folders
     return folders, exclude_folders
 
 
@@ -22,8 +27,7 @@ def make_result_folder(info):
     try:
         os.mkdir(result_folder)
     except FileExistsError:
-        print(colour('Folder {} exists!'.format(result_folder)))
-        sys.exit()
+        print(colour('Folder {} exists!'.format(result_folder), clr="yellow"))
     return result_folder
 
 
@@ -52,8 +56,8 @@ def bader_folder():
 
 def find_adsorbate_number(n):
     if not bader_folder():
-        print(colour("No ACF.dat/POSCAR/POTCAR in {} !".format(os.getcwd())))
-        return None
+        # print(colour("No ACF.dat/POSCAR/POTCAR in {}!".format(os.getcwd()), clr="yellow"))
+        return True
     atom_str = os.popen('sed -n 6p POSCAR').readline().split()
     atom_num_str = os.popen('sed -n 7p POSCAR').readline().split()
     atom_num_int = list(map(int, atom_num_str))
@@ -111,25 +115,35 @@ def find_adsorbate_number(n):
     with open("{}_ACF.dat".format(current_folder), "w+") as f:
         f.writelines(new_ACF)
     print(colour("{}_ACF.dat in {} generated".format(current_folder, os.getcwd()), clr="green"))
+    global count
+    count += 1
 
 
 def loop_folder():
+    global count
     init_cwd = os.getcwd()
     print("Working directory is: {}".format(init_cwd))
-    folders, exclude_folders = des_folders()
     N = atom_number_of_adsorbate()
-    for folder in folders:
+    run_folders, exclude_folders = des_folders()
+    result_folder = make_result_folder("-bader")
+    for folder in run_folders:
         if folder in exclude_folders:
             continue
         if os.path.isfile(folder):
             continue
-        result_folder = make_result_folder("-bader")
         os.chdir(folder)
-        find_adsorbate_number(N)
-        os.system("cp {}_ACF.dat ../{}".format(folder, result_folder))
+        flag = find_adsorbate_number(N)
+        if not flag:
+            os.system("cp {}_ACF.dat ../{}".format(folder, result_folder))
         os.chdir(init_cwd)
+    if count == 0:
+        os.popen("rm -r {}".format(result_folder))
     find_adsorbate_number(N)
+    if count == 0:
+        print(colour("No ACF.dat found...", clr="yellow"))
 
 
 if __name__ == "__main__":
+    global count
+    count = 0
     loop_folder()
