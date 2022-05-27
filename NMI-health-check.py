@@ -13,7 +13,7 @@ crontab 的环境变量需要自己设定的！
 def send_mail(m):
     mail_host = "smtp.qq.com"
     mail_sender, mail_pass, mail_receiver = tuple(
-        ['1099213337@qq.com', 'xxxxxxxxxxxxxx', 'xxxxxxxxx@xxxxxxx.edu.cn'])
+        ['xxxxxxxxx@qq.com', 'xxxxxxxxxxxxxx', 'xxxxxxxxx@xxxxxxx.edu.cn'])
     message_content = ''.join(m)
     message = MIMEText(message_content, 'plain', 'utf-8')
     message['Subject'] = 'NMI hpc notification'
