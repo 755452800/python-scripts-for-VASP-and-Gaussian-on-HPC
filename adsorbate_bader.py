@@ -16,8 +16,8 @@ def des_folders():
     return folders, exclude_folders
 
 
-def make_result_folder(info, cwd):
-    current_folder = cwd.split(r"/")[-1]
+def make_result_folder(info):
+    current_folder = os.getcwd().split(r"/")[-1]
     result_folder = current_folder + info
     try:
         os.mkdir(result_folder)
@@ -39,20 +39,21 @@ def atom_number_of_adsorbate():
     return atom_number_of_adsorbate
 
 
-def bader_folder(name, cwd):
-    os.chdir(name)
+def bader_folder():
     count = 0
     for i in os.listdir():
         if i in ["ACF.dat", "POSCAR", "POTCAR"]:
             count += 1
-    os.chdir(cwd)
     if count == 3:
         return True
     else:
         return False
 
 
-def find_adsorbate_number(folder, n):
+def find_adsorbate_number(n):
+    if not bader_folder():
+        print(colour("No ACF.dat/POSCAR/POTCAR in {} !".format(os.getcwd())))
+        return None
     atom_str = os.popen('sed -n 6p POSCAR').readline().split()
     atom_num_str = os.popen('sed -n 7p POSCAR').readline().split()
     atom_num_int = list(map(int, atom_num_str))
@@ -106,28 +107,28 @@ def find_adsorbate_number(folder, n):
         new_ACF.append(ACF[i + 2].strip("\n") + "\t" + ZVAL_expand[i] + "\t" + labelled_info[i] + "\n")
     for i in range(atom_num + 2, atom_num + 6):
         new_ACF.append(ACF[i])
-    with open("{}_ACF.dat".format(folder), "w+") as f:
+    current_folder = os.getcwd().split(r"/")[-1]
+    with open("{}_ACF.dat".format(current_folder), "w+") as f:
         f.writelines(new_ACF)
-    print("{}_ACF.dat in {} generated".format(folder, os.getcwd()))
+    print(colour("{}_ACF.dat in {} generated".format(current_folder, os.getcwd()), clr="green"))
 
 
 def loop_folder():
-    cwd = os.getcwd()
-    print("Working directory is: {}".format(cwd))
+    init_cwd = os.getcwd()
+    print("Working directory is: {}".format(init_cwd))
     folders, exclude_folders = des_folders()
     N = atom_number_of_adsorbate()
-    result_folder = make_result_folder("-bader", cwd)
     for folder in folders:
         if folder in exclude_folders:
             continue
         if os.path.isfile(folder):
             continue
-        if not bader_folder(folder, cwd):
-            continue
+        result_folder = make_result_folder("-bader")
         os.chdir(folder)
-        find_adsorbate_number(folder, N)
+        find_adsorbate_number(N)
         os.system("cp {}_ACF.dat ../{}".format(folder, result_folder))
-        os.chdir(cwd)
+        os.chdir(init_cwd)
+    find_adsorbate_number(N)
 
 
 if __name__ == "__main__":
