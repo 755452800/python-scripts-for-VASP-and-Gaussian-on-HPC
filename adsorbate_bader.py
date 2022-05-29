@@ -144,6 +144,5 @@ def loop_folder():
 
 
 if __name__ == "__main__":
-    global count
     count = 0
     loop_folder()
